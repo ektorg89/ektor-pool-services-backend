@@ -70,7 +70,9 @@ On Windows:
 ```
 
 ## Install dependencies
+```
 pip install -r requirements.txt
+```
 
 ## Environment variables
 ```Create a .env file using the provided example
