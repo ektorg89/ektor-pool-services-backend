@@ -1,6 +1,6 @@
 # Ektor Pool Services API
 
-RESTful API built with **FastAPI**, **SQLAlchemy**, and **MySQL** to manage customers, properties, and invoices for a pool maintenance business.
+Production-style REST API using FastAPI and SQLAlchemy with MySQL. Implements customers, properties, and invoice billing with validations and relational integrity.
 
 This project models real-world billing workflows such as recurring invoices, customer ownership, and date-based filtering.
 
@@ -70,8 +70,7 @@ On Windows:
 ```
 
 ## Install dependencies
-```pip install -r requirements.txt
-```
+pip install -r requirements.txt
 
 ## Environment variables
 ```Create a .env file using the provided example
