@@ -1,3 +1,5 @@
+import os
+from decimal import Decimal
 from datetime import date
 from typing import Optional
 
@@ -7,17 +9,78 @@ from sqlalchemy.exc import IntegrityError
 
 from app.db import get_db
 from app.models import Customer, Invoice, Property
-from app.schemas import CustomerOut, CustomerCreate, InvoiceOut, InvoiceCreate
+from app.schemas import (
+    CustomerOut,
+    CustomerCreate,
+    InvoiceOut,
+    InvoiceCreate,
+    CustomerStatementOut,
+    StatementItem,
+)
 
 app = FastAPI(title="Ektor Pool Services API")
 
+
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "version": os.getenv("APP_VERSION", "unknown"),
+    }
+
+
+@app.get("/reports/customers/{customer_id}/statement", response_model=CustomerStatementOut)
+def customer_statement(
+    customer_id: int = Path(..., ge=1, description="Customer ID (>= 1)"),
+    from_: date = Query(..., alias="from", description="Start date (YYYY-MM-DD)"),
+    to: date = Query(..., description="End date (YYYY-MM-DD)"),
+    db: Session = Depends(get_db),
+):
+    if from_ > to:
+        raise HTTPException(status_code=400, detail="'from' must be <= 'to'")
+
+    customer_exists = (
+        db.query(Customer.customer_id)
+        .filter(Customer.customer_id == customer_id)
+        .first()
+    )
+    if customer_exists is None:
+        raise HTTPException(status_code=404, detail="Customer not found")
+
+    invoices = (
+        db.query(Invoice)
+        .filter(Invoice.customer_id == customer_id)
+        .filter(Invoice.issued_date >= from_)
+        .filter(Invoice.issued_date <= to)
+        .order_by(Invoice.issued_date.asc(), Invoice.invoice_id.asc())
+        .all()
+    )
+
+    total = sum((inv.total for inv in invoices), Decimal("0.00"))
+
+    items = [
+        StatementItem(
+            invoice_id=inv.invoice_id,
+            issued_date=inv.issued_date,
+            status=inv.status,
+            total=inv.total,
+        )
+        for inv in invoices
+    ]
+
+    return CustomerStatementOut(
+        customer_id=customer_id,
+        from_date=from_,
+        to_date=to,
+        total=total,
+        items=items,
+    )
+
 
 @app.get("/customers", response_model=list[CustomerOut])
 def list_customers(db: Session = Depends(get_db)):
     return db.query(Customer).order_by(Customer.customer_id.desc()).limit(50).all()
+
 
 @app.post("/customers", response_model=CustomerOut, status_code=201)
 def create_customer(payload: CustomerCreate, db: Session = Depends(get_db)):
@@ -35,6 +98,7 @@ def create_customer(payload: CustomerCreate, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=409, detail="Database constraint violation")
 
+
 @app.get("/customers/{customer_id}", response_model=CustomerOut)
 def get_customer(
     customer_id: int = Path(..., ge=1, le=100, description="Customer ID (1-100)"),
@@ -46,6 +110,7 @@ def get_customer(
         raise HTTPException(status_code=404, detail="Customer not found")
 
     return customer
+
 
 @app.get("/invoices", response_model=list[InvoiceOut])
 def list_invoices(
@@ -111,7 +176,6 @@ def get_invoice(
 
 @app.post("/invoices", response_model=InvoiceOut, status_code=201)
 def create_invoice(payload: InvoiceCreate, db: Session = Depends(get_db)):
-    
     customer_exists = (
         db.query(Customer.customer_id)
         .filter(Customer.customer_id == payload.customer_id)
@@ -156,8 +220,4 @@ def create_invoice(payload: InvoiceCreate, db: Session = Depends(get_db)):
 
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="Database constraint violation"
-        )
-
+        raise HTTPException(status_code=409, detail="Database constraint violation")
