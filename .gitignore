@@ -16,3 +16,7 @@ __pycache__/
 Thumbs.db
 sql/*.sql
 !sql/init/*.sql
+
+# local/legacy sql
+sql/archive/
+
