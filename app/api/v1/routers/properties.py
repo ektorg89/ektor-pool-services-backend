@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.api.v1.routers.auth import require_roles
 from app.db.session import get_db
 from app.models.models import Customer, Property
 from app.schemas.schemas import PropertyCreate, PropertyOut, PropertyUpdate
@@ -33,6 +34,7 @@ def list_properties(
     response_model=PropertyOut,
     status_code=201,
     operation_id="v1_properties_create",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def create_property(payload: PropertyCreate, db: Session = Depends(get_db)):
     customer_exists = (
@@ -84,6 +86,7 @@ def get_property(
     "/{property_id}",
     response_model=PropertyOut,
     operation_id="v1_properties_update",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def update_property(
     property_id: int = Path(..., ge=1, le=100, description="Property ID (1-100)"),
@@ -127,6 +130,7 @@ def update_property(
     "/{property_id}",
     response_model=PropertyOut,
     operation_id="v1_properties_replace",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def replace_property(
     payload: PropertyCreate,
@@ -168,6 +172,7 @@ def replace_property(
     "/{property_id}",
     status_code=204,
     operation_id="v1_properties_delete",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def delete_property(
     property_id: int = Path(..., ge=1, le=100, description="Property ID (1-100)"),

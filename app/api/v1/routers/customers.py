@@ -2,11 +2,13 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.api.v1.routers.auth import require_roles
 from app.db.session import get_db
 from app.models.models import Customer
 from app.schemas.schemas import CustomerCreate, CustomerOut, CustomerUpdate
 
 router = APIRouter()
+
 
 @router.get(
     "",
@@ -22,6 +24,7 @@ def list_customers(db: Session = Depends(get_db)):
     response_model=CustomerOut,
     status_code=201,
     operation_id="v1_customers_create",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def create_customer(payload: CustomerCreate, db: Session = Depends(get_db)):
     try:
@@ -60,6 +63,7 @@ def get_customer(
     "/{customer_id}",
     status_code=204,
     operation_id="v1_customers_delete",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def delete_customer(
     customer_id: int = Path(..., ge=1, le=100, description="Customer ID (1-100)"),
@@ -87,6 +91,7 @@ def delete_customer(
     "/{customer_id}",
     response_model=CustomerOut,
     operation_id="v1_customers_update_partial",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def update_customer(
     payload: CustomerUpdate,
@@ -125,6 +130,7 @@ def update_customer(
     "/{customer_id}",
     response_model=CustomerOut,
     operation_id="v1_customers_replace",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def replace_customer(
     payload: CustomerCreate,
