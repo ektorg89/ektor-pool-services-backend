@@ -109,7 +109,7 @@ def create_customer(payload: CustomerCreate, db: Session = Depends(get_db)):
 
 @app.get("/customers/{customer_id}", response_model=CustomerOut)
 def get_customer(
-    customer_id: int = Path(..., ge=1, le=100, description="Customer ID (1-100)"),
+    customer_id: int = Path(..., ge=1, description="Customer ID (1-100)"),
     db: Session = Depends(get_db),
 ):
     customer = db.query(Customer).filter(Customer.customer_id == customer_id).first()
@@ -130,13 +130,11 @@ def list_invoices(
     customer_id: Optional[int] = Query(
         default=None,
         ge=1,
-        le=100,
         description="Filter by customer_id (1 to 100 — small business scope)",
     ),
     property_id: Optional[int] = Query(
         default=None,
         ge=1,
-        le=100,
         description="Filter by property_id (1 to 100 — small business scope)",
     ),
     from_date: Optional[date] = Query(

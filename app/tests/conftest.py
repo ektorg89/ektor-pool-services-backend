@@ -1,6 +1,6 @@
 import os
 import pytest
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 from urllib.parse import urlencode
@@ -34,7 +34,9 @@ def db_session(engine):
     connection = engine.connect()
     transaction = connection.begin()
 
-    TestingSessionLocal = sessionmaker(bind=connection, autoflush=False, autocommit=False)
+    TestingSessionLocal = sessionmaker(
+        bind=connection, autoflush=False, autocommit=False
+    )
     session = TestingSessionLocal()
 
     session.begin_nested()
@@ -78,17 +80,32 @@ def anon_client(db_session):
 
 
 @pytest.fixture(scope="function")
-def auth_headers(anon_client):
+def auth_headers(anon_client, db_session):
     username = "test_admin"
     email = "test_admin@example.com"
     password = "Password123!"
 
     r = anon_client.post(
         "/api/v1/auth/register",
-        json={"username": username, "email": email, "password": password},
+         json={
+        "username": username,
+        "email": email,
+        "password": password,
+        },
     )
     if r.status_code not in (201, 409):
-        raise AssertionError(f"Unexpected register status {r.status_code}: {r.text}")
+        raise AssertionError(
+            f"Unexpected register status {r.status_code}: {r.text}"
+        )
+
+    try:
+        db_session.execute(
+            text("UPDATE users SET role = 'admin' WHERE username = :u"),
+            {"u": username},
+        )
+        db_session.flush()
+    except Exception as e:
+        raise AssertionError(f"Failed to force admin role in DB: {e}")
 
     form = urlencode({"username": username, "password": password})
     r2 = anon_client.post(

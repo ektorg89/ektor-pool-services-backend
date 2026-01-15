@@ -18,7 +18,7 @@ router = APIRouter()
     operation_id="v1_properties_list",
 )
 def list_properties(
-    customer_id: Optional[int] = Query(default=None, ge=1, le=100),
+    customer_id: Optional[int] = Query(default=None, ge=1),
     db: Session = Depends(get_db),
 ):
     q = db.query(Property)
@@ -73,7 +73,7 @@ def create_property(payload: PropertyCreate, db: Session = Depends(get_db)):
     operation_id="v1_properties_get",
 )
 def get_property(
-    property_id: int = Path(..., ge=1, le=100, description="Property ID (1-100)"),
+    property_id: int = Path(..., ge=1, description="Property ID (1-100)"),
     db: Session = Depends(get_db),
 ):
     row = db.query(Property).filter(Property.property_id == property_id).first()
@@ -89,7 +89,7 @@ def get_property(
     dependencies=[Depends(require_roles("admin"))],
 )
 def update_property(
-    property_id: int = Path(..., ge=1, le=100, description="Property ID (1-100)"),
+    property_id: int = Path(..., ge=1, description="Property ID (1-100)"),
     payload: PropertyUpdate = None,
     db: Session = Depends(get_db),
 ):
@@ -134,7 +134,7 @@ def update_property(
 )
 def replace_property(
     payload: PropertyCreate,
-    property_id: int = Path(..., ge=1, le=100, description="Property ID (1-100)"),
+    property_id: int = Path(..., ge=1, description="Property ID (1-100)"),
     db: Session = Depends(get_db),
 ):
     row = db.query(Property).filter(Property.property_id == property_id).first()
@@ -175,7 +175,7 @@ def replace_property(
     dependencies=[Depends(require_roles("admin"))],
 )
 def delete_property(
-    property_id: int = Path(..., ge=1, le=100, description="Property ID (1-100)"),
+    property_id: int = Path(..., ge=1, description="Property ID (1-100)"),
     db: Session = Depends(get_db),
 ):
     row = db.query(Property).filter(Property.property_id == property_id).first()

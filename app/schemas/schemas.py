@@ -42,8 +42,8 @@ class InvoiceOut(BaseModel):
 
 
 class InvoiceCreate(BaseModel):
-    customer_id: int = Field(..., ge=1, le=100, description="Customer ID (1-100)")
-    property_id: int = Field(..., ge=1, le=100, description="Property ID (1-100)")
+    customer_id: int = Field(..., ge=1, description="Customer ID (1-100)")
+    property_id: int = Field(..., ge=1, description="Property ID (1-100)")
 
     period_start: date
     period_end: date
@@ -94,7 +94,7 @@ class InvoiceCreate(BaseModel):
         return v
 
 class PaymentCreate(BaseModel):
-    invoice_id: int = Field(..., ge=1, le=100)
+    invoice_id: int = Field(..., ge=1)
     amount: Decimal = Field(..., gt=Decimal("0.00"))
     paid_date: date = Field(default_factory=date.today)
     method: Optional[str] = Field(default=None, max_length=30)
@@ -147,7 +147,7 @@ class PropertyOut(BaseModel):
     is_active: int
 
 class PropertyCreate(BaseModel):
-    customer_id: int = Field(..., ge=1, le=100)
+    customer_id: int = Field(..., ge=1)
     label: str = Field(..., min_length=2, max_length=80)
     address1: str = Field(..., min_length=3, max_length=120)
     address2: Optional[str] = Field(default=None, max_length=120)

@@ -48,7 +48,7 @@ def create_customer(payload: CustomerCreate, db: Session = Depends(get_db)):
     operation_id="v1_customers_get",
 )
 def get_customer(
-    customer_id: int = Path(..., ge=1, le=100, description="Customer ID (1-100)"),
+    customer_id: int = Path(..., ge=1, le=9999, description="Customer ID (1-9999)"),
     db: Session = Depends(get_db),
 ):
     customer = db.query(Customer).filter(Customer.customer_id == customer_id).first()
@@ -66,7 +66,7 @@ def get_customer(
     dependencies=[Depends(require_roles("admin"))],
 )
 def delete_customer(
-    customer_id: int = Path(..., ge=1, le=100, description="Customer ID (1-100)"),
+    customer_id: int = Path(..., ge=1, description="Customer ID (1-100)"),
     db: Session = Depends(get_db),
 ):
     customer = db.query(Customer).filter(Customer.customer_id == customer_id).first()
@@ -95,7 +95,7 @@ def delete_customer(
 )
 def update_customer(
     payload: CustomerUpdate,
-    customer_id: int = Path(..., ge=1, le=100, description="Customer ID (1-100)"),
+    customer_id: int = Path(..., ge=1, description="Customer ID (1-100)"),
     db: Session = Depends(get_db),
 ):
     customer = db.query(Customer).filter(Customer.customer_id == customer_id).first()
@@ -134,7 +134,7 @@ def update_customer(
 )
 def replace_customer(
     payload: CustomerCreate,
-    customer_id: int = Path(..., ge=1, le=100, description="Customer ID (1-100)"),
+    customer_id: int = Path(..., ge=1, le=9999, description="Customer ID (1-9999)"),
     db: Session = Depends(get_db),
 ):
     customer = db.query(Customer).filter(Customer.customer_id == customer_id).first()
