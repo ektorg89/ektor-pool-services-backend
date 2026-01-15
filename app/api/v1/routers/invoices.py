@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.api.v1.routers.auth import require_roles
 from app.db.session import get_db
 from app.models.models import Customer, Invoice, Property
 from app.schemas.schemas import InvoiceCreate, InvoiceOut
@@ -69,6 +70,7 @@ def get_invoice(
     response_model=InvoiceOut,
     status_code=201,
     operation_id="v1_invoices_create",
+    dependencies=[Depends(require_roles("admin"))],
 )
 def create_invoice(payload: InvoiceCreate, db: Session = Depends(get_db)):
     customer_exists = (

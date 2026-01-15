@@ -1,13 +1,14 @@
 USE pool_db;
 
 CREATE TABLE users (
-  user_id        BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  username       VARCHAR(60)  NOT NULL,
-  email          VARCHAR(120) NOT NULL,
+  user_id         BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  username        VARCHAR(60)  NOT NULL,
+  email           VARCHAR(120) NOT NULL,
   hashed_password VARCHAR(255) NOT NULL,
-  is_active      TINYINT(1) NOT NULL DEFAULT 1,
-  created_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  role            VARCHAR(20)  NOT NULL DEFAULT 'admin',
+  is_active       TINYINT(1) NOT NULL DEFAULT 1,
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_users_username (username),
   UNIQUE KEY uq_users_email (email)
 ) ENGINE=InnoDB;
