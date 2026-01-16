@@ -12,6 +12,6 @@ protected_router.include_router(customers.router, prefix="/customers", tags=["cu
 protected_router.include_router(properties.router, prefix="/properties", tags=["properties"])
 protected_router.include_router(invoices.router, prefix="/invoices", tags=["invoices"])
 protected_router.include_router(payments.router, prefix="/payments", tags=["payments"])
-protected_router.include_router(reports.router)  # 👈 aquí adentro
+protected_router.include_router(reports.router)
 
 api_router.include_router(protected_router)
