@@ -1,3 +1,15 @@
+INSERT INTO users (username, email, hashed_password, role, is_active)
+VALUES (
+  'ektor',
+  'ektor@eps.com',
+  '$2b$12$qsgcJPdmbhAUg2MtKEWff.COyRTBk6kjCYD3/YCJ6Cf.Hf2gU2ZuG',
+  'admin',
+  1
+)
+ON DUPLICATE KEY UPDATE
+  role = VALUES(role),
+  is_active = VALUES(is_active);
+  
 INSERT INTO technicians (name, phone, email)
 VALUES ('Ektor Gonzalez', '787-555-0001', 'ektor.gonzalez@eps.com');
 
