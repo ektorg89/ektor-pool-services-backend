@@ -2,16 +2,20 @@ services:
   db:
     image: mysql:8.0
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./sql/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p${DB_ROOT_PASSWORD} --silent"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u${DB_USER} -p${DB_PASSWORD} --silent"]
       interval: 10s
       timeout: 5s
       retries: 15
@@ -24,11 +28,11 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: 3306
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./:/app
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--no-access-log"]
 
 volumes:
