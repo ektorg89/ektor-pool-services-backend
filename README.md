@@ -392,13 +392,13 @@ Errors are produced for:
 
 ## 7) Running Locally (Docker)
 Start
-```docker compose up -d --build
+``` docker compose up -d --build
 ```
 Run tests
-```docker compose exec api python -m pytest -q
+``` docker compose exec api python -m pytest -q
 ```
 Inspect routes (debug)
-```docker compose exec api python -c "from app.api.app import app; print('\n'.join(sorted([f'{r.methods} {r.path}' for r in app.router.routes if hasattr(r,'methods')])))"
+``` docker compose exec api python -c "from app.api.app import app; print('\n'.join(sorted([f'{r.methods} {r.path}' for r in app.router.routes if hasattr(r,'methods')])))"
 ```
 
 ---
